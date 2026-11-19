@@ -50,6 +50,39 @@ Para detener los servicios:
 ```bash
 docker compose down
 ```
+## Configuración por variables de entorno
+
+Docker Compose permite personalizar la configuración del backend mediante variables de entorno. Todas son opcionales para la ejecución local.
+
+| Variable | Valor predeterminado | Descripción |
+|---|---|---|
+| `BACKEND_PORT` | `3000` | Puerto publicado por Docker para el backend. |
+| `CORS_ORIGINS` | `http://localhost:4200` | Orígenes permitidos, separados por comas. |
+| `OBSERVE_ENABLED` | `false` | Activa la instrumentación de NestJS Observe cuando vale `true`. |
+| `OBSERVE_APP_KEY` | Vacío | Clave de la aplicación para Observe. |
+| `OBSERVE_APP_SECRET` | Vacío | Secreto de la aplicación para Observe. |
+| `OBSERVE_SERVICE_ID` | `mesa-solicitudes-backend` | Identificador del servicio observado. |
+
+Para personalizar los valores, se pueden definir variables de entorno antes de ejecutar Docker Compose o declararlas en un archivo `.env` local en la raíz del proyecto.
+
+Ejemplo de configuración opcional:
+
+```dotenv
+BACKEND_PORT=3000
+CORS_ORIGINS=http://localhost:4200
+OBSERVE_ENABLED=false
+OBSERVE_SERVICE_ID=mesa-solicitudes-backend
+```
+
+No se deben incluir credenciales reales en el repositorio. Si se activa Observe, deben proporcionarse sus credenciales mediante variables de entorno y mantenerse fuera del control de versiones.
+
+El frontend utiliza la ruta relativa `/api/requests`. Nginx redirige las peticiones `/api/` al backend, por lo que la URL del backend no está fijada en el código compilado de Angular.
+
+## Seguridad y alcance de la autorización
+
+Las cabeceras `x-branch-id` y `x-user-role` se utilizan para simular el contexto de sucursal y el rol durante esta prueba. Cualquier cliente puede enviar o modificar esas cabeceras; por tanto, no representan una identidad autenticada ni una autorización confiable.
+
+La solución no debe exponerse como sistema de producción sin incorporar autenticación real, autorización validada en el servidor y controles adecuados para proteger las operaciones por sucursal y rol.
 
 ## Funcionalidades
 

@@ -13,7 +13,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class RequestsApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:3000/requests';
+  private readonly baseUrl = '/api/requests';
 
   list(
     branchId: string,

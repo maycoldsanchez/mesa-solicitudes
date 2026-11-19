@@ -40,4 +40,4 @@ Las transiciones inválidas se rechazan sin guardar cambios. Las solicitudes cer
 
 ## 6. Limitaciones
 
-La persistencia en memoria se pierde al reiniciar el backend. El listado filtra y ordena registros en memoria, por lo que una solución de producción con grandes volúmenes necesitaría consultas e índices optimizados. La autenticación real y la integración completa de la infraestructura AWS quedan fuera del alcance de esta versión.
+La persistencia en memoria se pierde al reiniciar el backend. El listado filtra y ordena registros en memoria, por lo que una solución de producción con grandes volúmenes necesitaría consultas e índices optimizados. Las cabeceras de sucursal y rol son simuladas y pueden falsificarse desde el cliente; se requiere autenticación y autorización reales en el servidor. La infraestructura AWS es inicial y la Lambda definida no ejecuta todavía el backend NestJS. La configuración de CORS, la ruta de la API y la instrumentación pueden parametrizarse mediante variables de entorno y el proxy de Nginx.

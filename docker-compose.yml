@@ -9,6 +9,12 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
+      PORT: ${BACKEND_PORT:-3000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200}
+      OBSERVE_ENABLED: ${OBSERVE_ENABLED:-false}
+      OBSERVE_APP_KEY: ${OBSERVE_APP_KEY:-}
+      OBSERVE_APP_SECRET: ${OBSERVE_APP_SECRET:-}
+      OBSERVE_SERVICE_ID: ${OBSERVE_SERVICE_ID:-mesa-solicitudes-backend}
     restart: unless-stopped
 
   frontend:
