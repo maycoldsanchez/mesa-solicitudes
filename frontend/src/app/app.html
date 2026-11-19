@@ -1,0 +1,248 @@
+
+<main class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">OPERACIÓN</p>
+      <h1>Gestión de solicitudes</h1>
+      <p class="subtitle">
+        Consulta las solicitudes y gestiona su flujo de atención.
+      </p>
+    </div>
+    <button class="button button-primary" (click)="loadRequests()"
+      [disabled]="loading">
+      Actualizar
+    </button>
+  </header>
+
+  <section class="context-panel">
+    <div class="field">
+      <label for="branch">Sucursal simulada</label>
+      <select id="branch" [(ngModel)]="branchId" (ngModelChange)="changeContext()">
+        <option value="BR-001">Sucursal BR-001</option>
+        <option value="BR-002">Sucursal BR-002</option>
+        <option value="BR-003">Sucursal BR-003</option>
+        <option value="BR-004">Sucursal BR-004</option>
+        <option value="BR-005">Sucursal BR-005</option>
+        <option value="BR-006">Sucursal BR-006</option>
+        <option value="BR-007">Sucursal BR-007</option>
+        <option value="BR-008">Sucursal BR-008</option>
+        <option value="BR-009">Sucursal BR-009</option>
+        <option value="BR-010">Sucursal BR-010</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="role">Rol simulado</label>
+      <select id="role" [(ngModel)]="role" (ngModelChange)="changeContext()">
+        <option value="ANALYST">Analista</option>
+        <option value="BRANCH">Sucursal</option>
+      </select>
+    </div>
+
+    <p class="context-note">
+      El contexto se envía a la API en cada solicitud.
+    </p>
+  </section>
+
+  <section class="summary">
+    <div>
+      <span class="summary-label">Solicitudes encontradas</span>
+      <strong>{{ total | number }}</strong>
+    </div>
+    <div>
+      <span class="summary-label">Página actual</span>
+      <strong>{{ page }} de {{ totalPages || 1 }}</strong>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Solicitudes</h2>
+        <p>Busca por identificador, título o descripción.</p>
+      </div>
+    </div>
+
+    <form class="filters" (ngSubmit)="search()">
+      <div class="field search-field">
+        <label for="search">Buscar</label>
+        <input
+          id="search"
+          name="search"
+          type="search"
+          [(ngModel)]="searchTerm"
+          placeholder="Ej. REQ-000001"
+        />
+      </div>
+
+      <div class="field">
+        <label for="status">Estado</label>
+        <select id="status" name="status" [(ngModel)]="statusFilter">
+          <option value="">Todos los estados</option>
+          <option *ngFor="let item of statuses" [value]="item.value">
+            {{ item.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="button button-primary" type="submit" [disabled]="loading">
+          Buscar
+        </button>
+        <button class="button button-secondary" type="button"
+          (click)="clearFilters()" [disabled]="loading">
+          Limpiar
+        </button>
+      </div>
+    </form>
+
+    <div *ngIf="errorMessage" class="notice notice-error" role="alert">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="notice notice-success" role="status">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="loading" class="loading" role="status">
+      Cargando solicitudes...
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading">
+      <table *ngIf="requests.length > 0; else emptyState">
+        <thead>
+          <tr>
+            <th>Identificador</th>
+            <th>Solicitud</th>
+            <th>Estado</th>
+            <th>Fecha de creación</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let request of requests">
+            <td class="request-id">{{ request.id }}</td>
+            <td>
+              <strong>{{ request.title }}</strong>
+              <p class="description">{{ request.description }}</p>
+            </td>
+            <td>
+              <span class="status" [ngClass]="getStatusClass(request.status)">
+                {{ getStatusLabel(request.status) }}
+              </span>
+            </td>
+            <td>{{ request.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <button class="button button-secondary button-small"
+                (click)="openDetails(request)">
+                Ver detalle
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <h3>No hay solicitudes para mostrar</h3>
+          <p>Prueba con otros filtros o cambia el término de búsqueda.</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <footer class="pagination" *ngIf="totalPages > 0">
+      <span>
+        Mostrando {{ requests.length }} de {{ total }} resultados
+      </span>
+      <div class="pagination-controls">
+        <button class="button button-secondary" (click)="changePage(page - 1)"
+          [disabled]="page <= 1 || loading">
+          Anterior
+        </button>
+        <span>Página {{ page }} / {{ totalPages }}</span>
+        <button class="button button-secondary" (click)="changePage(page + 1)"
+          [disabled]="page >= totalPages || loading">
+          Siguiente
+        </button>
+      </div>
+    </footer>
+  </section>
+
+  <section class="panel detail-panel" *ngIf="selectedRequest as request">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">DETALLE</p>
+        <h2>{{ request.id }}</h2>
+        <p>{{ request.title }}</p>
+      </div>
+      <button class="button button-secondary"
+        (click)="selectedRequest = null">
+        Cerrar detalle
+      </button>
+    </div>
+
+    <div class="detail-grid">
+      <div>
+        <span class="detail-label">Sucursal</span>
+        <strong>{{ request.branchId }}</strong>
+      </div>
+      <div>
+        <span class="detail-label">Estado actual</span>
+        <span class="status" [ngClass]="getStatusClass(request.status)">
+          {{ getStatusLabel(request.status) }}
+        </span>
+      </div>
+      <div>
+        <span class="detail-label">Creada</span>
+        <strong>{{ request.createdAt | date: 'dd/MM/yyyy HH:mm' }}</strong>
+      </div>
+      <div>
+        <span class="detail-label">Última actualización</span>
+        <strong>{{ request.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</strong>
+      </div>
+    </div>
+
+    <div class="description-block">
+      <h3>Descripción</h3>
+      <p>{{ request.description }}</p>
+    </div>
+
+    <div class="workflow">
+      <h3>Acciones disponibles</h3>
+
+      <p *ngIf="request.status === 'CLOSED'" class="muted">
+        La solicitud está cerrada y no puede modificarse.
+      </p>
+
+      <ng-container *ngIf="role === 'ANALYST'">
+        <button
+          *ngIf="request.status === 'NEW' || request.status === 'IN_ATTENTION'"
+          class="button button-primary"
+          (click)="performAction('ADVANCE')">
+          {{ request.status === 'NEW' ? 'Iniciar atención' : 'Enviar a confirmación' }}
+        </button>
+        <p *ngIf="request.status === 'PENDING_CONFIRMATION'" class="muted">
+          La sucursal debe confirmar o devolver la resolución.
+        </p>
+      </ng-container>
+
+      <ng-container *ngIf="role === 'BRANCH'">
+        <div *ngIf="request.status === 'PENDING_CONFIRMATION'" class="action-group">
+          <button class="button button-primary"
+            (click)="performAction('CONFIRM_RESOLUTION')">
+            Confirmar resolución y cerrar
+          </button>
+          <button class="button button-danger"
+            (click)="performAction('REJECT_RESOLUTION')">
+            Devolver a atención
+          </button>
+        </div>
+        <p *ngIf="request.status !== 'PENDING_CONFIRMATION' && request.status !== 'CLOSED'"
+          class="muted">
+          Las acciones de la sucursal estarán disponibles cuando la solicitud
+          llegue a confirmación.
+        </p>
+      </ng-container>
+    </div>
+  </section>
+</main>
