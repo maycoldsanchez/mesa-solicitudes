@@ -1,6 +1,5 @@
 
 import {
-  RequestAction,
   RequestRole,
   RequestStatus,
   TransitionCommand,
