@@ -7,9 +7,12 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   backend:
-    name: Backend - Build
+    name: Backend - Lint, Build y Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,8 +32,17 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      - name: Analizar código (lint)
+        run: npm run lint
+
       - name: Compilar backend
         run: npm run build
+
+      - name: Ejecutar pruebas unitarias
+        run: npm test
+
+      - name: Ejecutar pruebas de extremo a extremo
+        run: npm run test:e2e
 
   frontend:
     name: Frontend - Build
