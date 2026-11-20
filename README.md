@@ -30,7 +30,7 @@ Docker Compose permite ejecutar el frontend y el backend localmente. No se requi
 Clonar el repositorio:
 
 ```bash
-git clone git@github.com:maycoldsanchez/mesa-solicitudes.git
+git clone https://github.com/maycoldsanchez/mesa-solicitudes.git
 cd mesa-solicitudes
 ```
 
